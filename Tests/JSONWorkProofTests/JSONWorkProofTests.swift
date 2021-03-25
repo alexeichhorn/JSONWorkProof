@@ -3,10 +3,9 @@ import XCTest
 
 final class JSONWorkProofTests: XCTestCase {
     func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(JSONWorkProof().text, "Hello, World!")
+        let jwp = JWP()
+        let token = try! jwp.generate(claims: ["hello": "world"])
+        print(token)
     }
 
     static var allTests = [
