@@ -36,13 +36,14 @@ public struct JWP {
         
         let salt = generateSalt()
         
-        let challenge = "\(encodedHeader).\(encodedBody).\(salt)"
+        let challenge = "\(encodedHeader).\(encodedBody)"
         
         var counter: UInt64 = 0
         
         while true {
-            let encodedCounter = String(format: "%2x", counter).trimmingCharacters(in: .whitespaces)
-            let stamp = challenge + encodedCounter
+            let proof = salt + Data(minimalRepresentationOf: counter)
+            let encodedProof = proof.base64urlEncodedString()
+            let stamp = challenge + "." + encodedProof
             
             let digest = SHA256.hash(data: stamp.data(using: .utf8)!)
             
@@ -57,9 +58,15 @@ public struct JWP {
     
     // MARK: -
     
-    private func generateSalt() -> String {
-        let charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        return String((0..<saltLength).map { _ in charset.randomElement()! })
+    private func generateSalt() -> Data {
+        var data = Data(count: saltLength)
+        
+        let result = data.withUnsafeMutableBytes {
+            SecRandomCopyBytes(kSecRandomDefault, saltLength, $0.baseAddress!)
+        }
+        guard result == errSecSuccess else { fatalError("Failed to generate salt") }
+        
+        return data
     }
     
 }
