@@ -59,6 +59,19 @@ final class JSONWorkProofTests: XCTestCase {
         
     }
     
+    func testInvalidProofCheck() {
+        let jwp = JWP(difficulty: 20)
+        
+        let validStamp = "eyJ0eXAiOiJKV1AiLCJhbGciOiJTSEEyNTYiLCJkaWYiOjIwfQ.eyJleHAiOjE2MTY4NTA1NzAuNjU1MTQ3MSwiaGVsbG8iOiJ3b3JsZCJ9.VE6YYxIQ46lPzxyNuRYAmAMkEM"
+        XCTAssertNoThrow(try jwp.decode(validStamp, expirationRange: .unlimited))
+        
+        let invalidStamp = "eyJ0eXAiOiJKV1AiLCJhbGciOiJTSEEyNTYiLCJkaWYiOjIwfQ.eyJleHAiOjE2MTY4NTA1NzAuNjU1MTQ3MSwiaGVsbG8iOiJ3b3JsZCJ9.VE6YYxIQ46lPzxyNuRYAmAMkEC"
+        XCTAssertNoThrow(try jwp.decode(invalidStamp, verify: false))
+        XCTAssertThrowsError(try jwp.decode(invalidStamp, expirationRange: .unlimited)) { error in
+            XCTAssert((error as? JWP.DecodeError) == JWP.DecodeError.invalidProof)
+        }
+    }
+    
     
     // MARK: - Speedtest
     
@@ -80,6 +93,10 @@ final class JSONWorkProofTests: XCTestCase {
 
     static var allTests = [
         ("testExample", testExample),
+        ("testGenerateAndCheck", testGenerateAndCheck),
+        ("testExpirationCheck", testExpirationCheck),
+        ("testDifficultyCheck", testDifficultyCheck),
+        ("testInvalidProofCheck", testInvalidProofCheck),
         ("testMintSHA256DefaultSpeed", testMintSHA256DefaultSpeed),
         ("testMintSHA256FastSpeed", testMintSHA256FastSpeed)
     ]
