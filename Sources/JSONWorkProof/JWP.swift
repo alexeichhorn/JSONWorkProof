@@ -35,15 +35,16 @@ public struct JWP {
         let encodedBody = body.base64urlEncodedString()
         
         let salt = generateSalt()
+        let encodedSalt = salt.base64urlEncodedString()
         
-        let challenge = "\(encodedHeader).\(encodedBody)"
+        let challenge = "\(encodedHeader).\(encodedBody).\(encodedSalt)"
         
         var counter: UInt64 = 0
         
         while true {
-            let proof = salt + Data(minimalRepresentationOf: counter)
+            let proof = Data(minimalRepresentationOf: counter)
             let encodedProof = proof.base64urlEncodedString()
-            let stamp = challenge + "." + encodedProof
+            let stamp = challenge + encodedProof
             
             let digest = SHA256.hash(data: stamp.data(using: .utf8)!)
             
