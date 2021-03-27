@@ -9,9 +9,37 @@ final class JSONWorkProofTests: XCTestCase {
         print(token)
     }
     
+    func generateAndCheck(on jwp: JWP, count: Int = 10) {
+        for _ in 0..<count {
+            let claims: [String: Codable] = [ "hello": "world", "randomInt": Int.random(in: 0..<10000000) ]
+            let stamp = try? jwp.generate(claims: claims)
+            
+            XCTAssertNotNil(stamp)
+            
+            XCTAssertNoThrow(try jwp.decode(stamp!))
+            guard let decodedClaims = try? jwp.decode(stamp!) else { continue }
+            
+            XCTAssertEqual(claims["hello"] as? String, decodedClaims["hello"] as? String)
+            XCTAssertEqual(claims["randomInt"] as? String, decodedClaims["randomInt"] as? String)
+        }
+    }
+    
+    func testGenerateAndCheck() {
+        generateAndCheck(on: JWP(), count: 5)
+        generateAndCheck(on: JWP(difficulty: 22), count: 2)
+        generateAndCheck(on: JWP(difficulty: 18), count: 5)
+        generateAndCheck(on: JWP(difficulty: 15), count: 10)
+        generateAndCheck(on: JWP(difficulty: 5), count: 10)
+        generateAndCheck(on: JWP(difficulty: 15, saltLength: 100), count: 5)
+    }
+    
+    // MARK: - Speedtest
+    
     func testMintSHA256DefaultSpeed() {
         let jwp = JWP()
-        measure {
+        let options = XCTMeasureOptions()
+        options.iterationCount = 50
+        measure(options: options) {
             _ = try! jwp.generate(claims: ["test": "speedtest"])
         }
     }
