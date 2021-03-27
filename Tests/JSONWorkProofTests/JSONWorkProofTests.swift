@@ -33,12 +33,39 @@ final class JSONWorkProofTests: XCTestCase {
         generateAndCheck(on: JWP(difficulty: 15, saltLength: 100), count: 5)
     }
     
+    func testExpirationCheck() {
+        let jwp = JWP(difficulty: 20)
+        
+        let stamp1 = "eyJ0eXAiOiJKV1AiLCJhbGciOiJTSEEyNTYiLCJkaWYiOjIwfQ.eyJleHAiOjE2MTY4NTA1NzAuNjU1MTQ3MSwiaGVsbG8iOiJ3b3JsZCJ9.VE6YYxIQ46lPzxyNuRYAmAMkEM"
+        XCTAssertNoThrow(try jwp.decode(stamp1, expirationRange: .unlimited))
+        XCTAssertNoThrow(try jwp.decode(stamp1, expirationRange: JWP.DateRange(start: Date(timeIntervalSince1970: 1616850383), duration: 5*60)))
+        XCTAssertThrowsError(try jwp.decode(stamp1)) { error in
+            XCTAssert((error as? JWP.DecodeError) == JWP.DecodeError.expired)
+        }
+        
+        let stamp2 = "eyJ0eXAiOiJKV1AiLCJhbGciOiJTSEEyNTYiLCJkaWYiOjIwfQ.eyJoZWxsbyI6IndvcmxkIn0.LCYdFqTlHkox8chJLRoPpQB5wC" // no expiration included
+        XCTAssertNoThrow(try jwp.decode(stamp2, expirationRange: .unlimited))
+        XCTAssertThrowsError(try jwp.decode(stamp2)) { error in
+            XCTAssert((error as? JWP.DecodeError) == JWP.DecodeError.expired)
+        }
+        XCTAssertThrowsError(try jwp.decode(stamp2, expirationRange: JWP.DateRange(duration: 1_000_000, end: Date()))) { error in
+            XCTAssert((error as? JWP.DecodeError) == JWP.DecodeError.expired)
+        }
+        XCTAssertNoThrow(try jwp.decode(stamp2, expirationRange: JWP.DateRange(start: nil, end: Date())))
+        
+    }
+    
+    func testDifficultyCheck() {
+        
+    }
+    
+    
     // MARK: - Speedtest
     
     func testMintSHA256DefaultSpeed() {
         let jwp = JWP()
         let options = XCTMeasureOptions()
-        options.iterationCount = 50
+        //options.iterationCount = 50
         measure(options: options) {
             _ = try! jwp.generate(claims: ["test": "speedtest"])
         }
