@@ -44,15 +44,15 @@ public struct JWP {
         
         while true {
             let proof = Data(minimalRepresentationOf: counter)
-            let encodedProof = proof.base64urlEncodedString()
+            let encodedProof = proof.base64urlEncoded()
             
             var hasher = SHA256()
             hasher.update(data: challengeData)
-            hasher.update(data: encodedProof.data(using: .utf8)!)
+            hasher.update(data: encodedProof)
             let digest = hasher.finalize()
             
             if digest.isZeroPrefixed(withBits: difficulty) {
-                return challenge + encodedProof
+                return challenge + proof.base64urlEncodedString()
             }
             
             counter += 1

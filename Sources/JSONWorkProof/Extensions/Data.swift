@@ -23,6 +23,11 @@ extension Data {
         Base64.encodeString(bytes: [UInt8](self), options: [.base64UrlAlphabet, .omitPaddingCharacter])
     }
     
+    func base64urlEncoded() -> Data {
+        let bytes = Base64.encodeBytes(bytes: [UInt8](self), options: [.base64UrlAlphabet, .omitPaddingCharacter])
+        return Data(bytes)
+    }
+    
     
     init(minimalRepresentationOf value: UInt64) {
         var bytes = [UInt8](repeating: 0, count: 8)
