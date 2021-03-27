@@ -1,5 +1,5 @@
 import XCTest
-@testable import JSONWorkProof
+/*@testable */import JSONWorkProof
 
 final class JSONWorkProofTests: XCTestCase {
     

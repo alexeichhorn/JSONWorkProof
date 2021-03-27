@@ -20,13 +20,7 @@ extension Data {
     }
     
     func base64urlEncodedString() -> String {
-        autoreleasepool {
-            var result = self.base64EncodedString()
-            result = result.replacingOccurrences(of: "+", with: "-")
-            result = result.replacingOccurrences(of: "/", with: "_")
-            result = result.replacingOccurrences(of: "=", with: "")
-            return result
-        }
+        Base64.encodeString(bytes: [UInt8](self), options: [.base64UrlAlphabet, .omitPaddingCharacter])
     }
     
     
