@@ -30,19 +30,8 @@ extension Data {
     
     
     init(minimalRepresentationOf value: UInt64) {
-        var bytes = [UInt8](repeating: 0, count: 8)
         var value = value
-        
-        for i in 0..<8 {
-            bytes[i] = UInt8(value & 0xFF)
-            value >>= 8
-        }
-        
-        guard let lastByte = bytes.lastIndex(where: { $0 != 0 }) else {
-            self = Data()
-            return
-        }
-        
-        self = Data(bytes[0...lastByte])
+        let zeroBytesCount = value.leadingZeroBitCount / 8
+        self = Data(bytes: &value, count: MemoryLayout<UInt64>.size - zeroBytesCount)
     }
 }
