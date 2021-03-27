@@ -38,18 +38,21 @@ public struct JWP {
         let encodedSalt = salt.base64urlEncodedString()
         
         let challenge = "\(encodedHeader).\(encodedBody).\(encodedSalt)"
+        let challengeData = challenge.data(using: .utf8)!
         
         var counter: UInt64 = 0
         
         while true {
             let proof = Data(minimalRepresentationOf: counter)
             let encodedProof = proof.base64urlEncodedString()
-            let stamp = challenge + encodedProof
             
-            let digest = SHA256.hash(data: stamp.data(using: .utf8)!)
+            var hasher = SHA256()
+            hasher.update(data: challengeData)
+            hasher.update(data: encodedProof.data(using: .utf8)!)
+            let digest = hasher.finalize()
             
             if digest.isZeroPrefixed(withBits: difficulty) {
-                return stamp
+                return challenge + encodedProof
             }
             
             counter += 1
