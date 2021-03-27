@@ -40,14 +40,16 @@ public struct JWP {
         let challenge = "\(encodedHeader).\(encodedBody).\(encodedSalt)"
         let challengeData = challenge.data(using: .utf8)!
         
+        var baseHasher = SHA256()
+        baseHasher.update(data: challengeData)
+        
         var counter: UInt64 = 0
         
         while true {
             let proof = Data(minimalRepresentationOf: counter)
             let encodedProof = proof.base64urlEncoded()
             
-            var hasher = SHA256()
-            hasher.update(data: challengeData)
+            var hasher = baseHasher
             hasher.update(data: encodedProof)
             let digest = hasher.finalize()
             
