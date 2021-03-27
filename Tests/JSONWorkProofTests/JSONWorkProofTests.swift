@@ -56,7 +56,19 @@ final class JSONWorkProofTests: XCTestCase {
     }
     
     func testDifficultyCheck() {
+        let hardJWP = JWP(difficulty: 20)
+        let easyJWP = JWP(difficulty: 15)
         
+        let hardStamp = "eyJ0eXAiOiJKV1AiLCJhbGciOiJTSEEyNTYiLCJkaWYiOjIwfQ.eyJleHAiOjE2MTY4NTA1NzAuNjU1MTQ3MSwiaGVsbG8iOiJ3b3JsZCJ9.VE6YYxIQ46lPzxyNuRYAmAMkEM"
+        let easyStamp = "eyJ0eXAiOiJKV1AiLCJhbGciOiJTSEEyNTYiLCJkaWYiOjE1fQ.eyJoZWxsbyI6IndvcmxkIiwiZXhwIjoxNjE2ODUxODcyLjUyOTQwNDJ9.Rg1tRi9JUkw1Ls9WotkuaAFzs"
+        
+        XCTAssertNoThrow(try hardJWP.decode(hardStamp, expirationRange: .unlimited))
+        XCTAssertThrowsError(try hardJWP.decode(easyStamp, expirationRange: .unlimited)) { error in
+            XCTAssert((error as? JWP.DecodeError) == JWP.DecodeError.invalidProof)
+        }
+        
+        XCTAssertNoThrow(try easyJWP.decode(hardStamp, expirationRange: .unlimited))
+        XCTAssertNoThrow(try easyJWP.decode(easyStamp, expirationRange: .unlimited))
     }
     
     func testInvalidProofCheck() {
