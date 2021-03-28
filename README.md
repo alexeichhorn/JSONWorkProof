@@ -12,7 +12,7 @@ It contains three elements which are each base64url encoded. The header contains
 
 ## Possible Applications
 
-Can be used to prevent DDOS attacks or as an alternative to rate limiting. 
+Can be used to prevent DDOS attacks or as an alternative to rate limiting or captchas. 
 
 E.g. you can use this to prevent brute forcing user logins: The client generates a token with the claims including username and password and sends it along with the login request. The server then first checks if the token is valid before it does any lookup. The scale of bruteforcing can therefore be massively reduced.
 
