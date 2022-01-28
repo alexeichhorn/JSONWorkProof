@@ -82,6 +82,11 @@ public struct JWP {
         }
     }
     
+    /// - parameter qos: determines quality of service of global dispatch queue to run in
+    public func generate(claims: [String: Codable], expiration: Date? = Date() + 5*60, qos: DispatchQoS.QoSClass) async throws -> String {
+        try await generate(claims: claims, expiration: expiration, in: DispatchQueue.global(qos: qos))
+    }
+    
     
     // MARK: - Decode
     
