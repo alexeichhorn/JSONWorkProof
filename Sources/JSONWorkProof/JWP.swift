@@ -68,6 +68,20 @@ public struct JWP {
         }
     }
     
+    /// - parameter queue: determines in which queue work is executed in
+    public func generate(claims: [String: Codable], expiration: Date? = Date() + 5*60, in queue: DispatchQueue = .global(qos: .utility)) async throws -> String {
+        try await withCheckedThrowingContinuation { continuation in
+            queue.async {
+                do {
+                    let stamp = try generate(claims: claims, expiration: expiration)
+                    continuation.resume(returning: stamp)
+                } catch let error {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
     
     // MARK: - Decode
     

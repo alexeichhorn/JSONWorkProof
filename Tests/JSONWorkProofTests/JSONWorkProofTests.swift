@@ -9,6 +9,12 @@ final class JSONWorkProofTests: XCTestCase {
         print(token)
     }
     
+    func testAsyncGeneration() async throws {
+        let jwp = JWP()
+        let token = try! await jwp.generate(claims: ["hello": "async"])
+        XCTAssert(!token.isEmpty)
+    }
+    
     func generateAndCheck(on jwp: JWP, count: Int = 10) {
         for _ in 0..<count {
             let claims: [String: Codable] = [ "hello": "world", "randomInt": Int.random(in: 0..<10000000) ]
@@ -105,6 +111,7 @@ final class JSONWorkProofTests: XCTestCase {
 
     static var allTests = [
         ("testExample", testExample),
+        ("testAsyncGeneration", testAsyncGeneration),
         ("testGenerateAndCheck", testGenerateAndCheck),
         ("testExpirationCheck", testExpirationCheck),
         ("testDifficultyCheck", testDifficultyCheck),
