@@ -14,7 +14,7 @@ extension Digest {
         
         var bitCount = bitCount
         
-        for byte in self {
+        for byte in self.makeIterator() { // `makeIterator` required to prevent compilation issue (last tested Xcode 14.0)
             if bitCount == 0 { return true }
             
             if bitCount >= 8 {
